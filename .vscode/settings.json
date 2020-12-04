@@ -1,0 +1,12 @@
+{
+    "cSpell.words": [
+        "creds",
+        "jwtutils",
+        "testdb"
+    ],
+    "filewatcher.commands": [
+        {
+            "cmd": "echo '${file} file content Changed'",
+        }
+    ]
+}
