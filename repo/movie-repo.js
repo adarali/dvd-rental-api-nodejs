@@ -9,6 +9,7 @@ const movieSchema = new mongoose.Schema({
     available: {type: Boolean, default: true},
     movieImages: Array,
     likeCount: {type: Number, default: 0},
+    likes: {type: Array, default: [], select: false}
 });
 
 const Movie = mongoose.model('Movie', movieSchema);
@@ -45,6 +46,33 @@ exports.update = function(id, movieParam, callback) {
 
 exports.delete = function(id, callback) {
     Movie.findByIdAndDelete(id, callback);
+}
+
+exports.toggleAvailable = function(id, callback) {
+    Movie.findById(id, (err, movie) => {
+        movie.available = !movie.available;
+        movie.save();
+        callback(err, movie);
+    });
+}
+
+exports.likeMovie = function(id, username, callback) {
+    Movie.findById(id, "+likes", (err, movie) => {
+        let result = false;
+        if(movie.likes.includes(username)) {
+            movie.likeCount--;
+            let index = movie.likes.indexOf(username);
+            movie.likes.splice(index, 1);
+        } else {
+            movie.likes.push(username);
+            movie.likeCount++;
+            result = true;
+        }
+        console.log("movie before save", movie)
+        movie.save();
+        console.log("movie after save", movie)
+        callback(err, {liked: result, likes: movie.likeCount});
+    })
 }
 
 //loadMovies()

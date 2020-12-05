@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
     username: {type: String, required: true, trim: true, minlength: 3},
-    password: {type: String, required: true, trim: true},
+    password: {type: String, required: true, trim: false, select: false},
     firstName: {type: String, required: true, trim: true},
     lastName: {type: String, required: false, trim: true},
     admin: {type: Boolean, required: true, default: false},
@@ -22,6 +22,10 @@ exports.findAll = function(callback) {
 
 exports.findByUsername = function(username, callback) {
     User.findOne({username: username}).exec(callback);
+}
+
+exports.getPasswordHash = function(username, callback) {
+    User.findOne({username: username}).select("+password").exec(callback);
 }
 
 exports.save = function(userParam, callback) {

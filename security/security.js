@@ -25,13 +25,14 @@ addMiddleware = (app) => {
         jwtutils.extractAndValidateToken(req, (err, decoded) => {
             if(err) return res.status(401).send(err);
             console.log("decoded", decoded)
+            req.user = {username: decoded.subject, admin: decoded.admin};
             req.admin = decoded.admin
             next();
         });
     });
 }
 
-authRole = (admin) => {
+authRole = (admin = true) => {
     return (req, res, next) => {
         if(!req.admin) return res.status(403).send('Forbidden');
         next();
