@@ -58,20 +58,15 @@ exports.toggleAvailable = function(id, callback) {
 
 exports.likeMovie = function(id, username, callback) {
     Movie.findById(id, "+likes", (err, movie) => {
-        let result = false;
-        if(movie.likes.includes(username)) {
-            movie.likeCount--;
-            let index = movie.likes.indexOf(username);
+        let index = movie.likes.indexOf(username);
+        if(index >= 0) {
             movie.likes.splice(index, 1);
         } else {
             movie.likes.push(username);
-            movie.likeCount++;
-            result = true;
         }
-        console.log("movie before save", movie)
+        movie.likeCount = movie.likes.length;
         movie.save();
-        console.log("movie after save", movie)
-        callback(err, {liked: result, likes: movie.likeCount});
+        callback(err, {liked: index < 0, likes: movie.likeCount});
     })
 }
 
