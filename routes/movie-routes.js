@@ -1,6 +1,8 @@
 var router = require('express').Router();
 var movieRepo = require('../repo/movie-repo');
 const { authRole } = require('../security/security');
+var rentRepo = require('../repo/rent-repo');
+var purchaseRepo = require('../repo/purchase-repo');
 
 router.use(function timeLog(req, res, next) {
     console.log("timeLog");
@@ -70,7 +72,33 @@ router.patch(getUrl(':id/like'), (req, res) => {
     });
 })
 
+router.post(getUrl(':id/rents'), (req, res) => {
+    let id = req.params.id;
+    let params = req.body;
+    rentRepo.doRent(id, params, req.user.username, (err, rent) => {
+        if(err) return res.status(400).send({message: err.message});
+        res.status(201).send(rent);
+    })
+});
+
+router.patch(getUrl(':id/rents/:rentId/return'), (req, res) => {
+    rentRepo.returnRent(req.params.rentId, (err, rent) => {
+        if(err) return res.status(400).send(err);
+        res.send(rent);
+    });
+});
+
+router.post(getUrl(':id/purchases'), (req, res) => {
+    let id = req.params.id;
+    let params = req.body;
+    purchaseRepo.purchase(id, params, req.user.username, (err, purchase) => {
+        if(err) return res.status(400).send({message: err.message});
+        res.status(201).send(purchase);
+    });
+});
+
 module.exports = router;
+
 
 function getUrl(url) {
     return url ? "/"+url : '';

@@ -12,6 +12,17 @@ const movieSchema = new mongoose.Schema({
     likes: {type: Array, default: [], select: false}
 });
 
+movieSchema.methods.subtractStock = function(quantity) {
+    console.log("subtract stock", quantity)
+    if(quantity > this.stock) throw {message: "Not enough stock"};
+    this.stock -= quantity;
+}
+
+movieSchema.methods.addStock = function(quantity) {
+    console.log("add stock", quantity)
+    this.stock += quantity;
+}
+
 const Movie = mongoose.model('Movie', movieSchema);
 
 exports.findAll = function(params, callback) {
