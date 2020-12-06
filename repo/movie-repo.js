@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const changeRepo = require('./change-repo');
 
 const movieSchema = new mongoose.Schema({
     title: {type: String, required: true, trim: true, minlength: 3},
@@ -39,7 +40,10 @@ exports.findAll = function(params, callback) {
 
     Movie.find(filter, fields, 
         {skip: page*pageSize, limit: pageSize}, 
-        callback).sort({[sort]: desc? -1 : 1});
+        (err, movies) => {
+            if(err) return callback(err, null)
+            Movie.count(filter, (err, count) => callback(err, {movies: movies, count: count}))
+        }).sort({[sort]: desc? -1 : 1});
 }
 
 exports.findOne = function(id, callback) {
@@ -52,7 +56,19 @@ exports.save = function(movieParam, callback) {
 }
 
 exports.update = function(id, movieParam, callback) {
-    Movie.findByIdAndUpdate(id, movieParam, {new: true, runValidators: true}, callback);
+    changeRepo.logChanges(id, movieParam, (err, changes) => {
+        if(err) return callback(err, null);
+        Movie.findByIdAndUpdate(id, movieParam, {new: true, runValidators: true}, (err, updated)=> {
+            if(err) return callback(err, null);
+            changes.forEach(change => {
+                change.movie = updated;
+                change.save();
+            })
+            callback(err, updated);
+        });
+
+    })
+    
 }
 
 exports.delete = function(id, callback) {

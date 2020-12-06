@@ -3,6 +3,7 @@ var movieRepo = require('../repo/movie-repo');
 const { authRole } = require('../security/security');
 var rentRepo = require('../repo/rent-repo');
 var purchaseRepo = require('../repo/purchase-repo');
+var utils = require('../utils/utils');
 
 router.use(function timeLog(req, res, next) {
     console.log("timeLog");
@@ -11,8 +12,10 @@ router.use(function timeLog(req, res, next) {
 
 router.get(getUrl(), (req, res) => {
     if(!req.admin) req.query.available = 1
-    movieRepo.findAll(req.query, (err, movies) => {
-        
+    movieRepo.findAll(req.query, (err, result) => {
+        let movies = result.movies;
+        res.set("X-Total-Count", result.count)
+        res.set("Link", utils.buildLinkHeader(req, result.count))
         if(err) return res.status(400).send(err);
         res.send(movies);
     })
