@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { param } = require('../routes/log-routes');
 const changeRepo = require('./change-repo');
 
 const movieSchema = new mongoose.Schema({
@@ -52,7 +53,12 @@ exports.findOne = function(id, callback) {
 
 exports.save = function(movieParam, callback) {
     const movie = new Movie(movieParam);
-    return movie.save(callback)
+    Movie.count({title: movieParam.title}, (err, result) => {
+        if(err) return callback(err, null);
+        if(result > 0) return callback({message: "There is already a movie with the same title"}, null);
+        return movie.save(callback)
+    });
+    
 }
 
 exports.update = function(id, movieParam, callback) {
@@ -94,12 +100,13 @@ exports.likeMovie = function(id, username, callback) {
         movie.likeCount = movie.likes.length;
         movie.save();
         callback(err, {liked: index < 0, likes: movie.likeCount});
-    })
+    });
 }
 
 //loadMovies()
 
 function loadMovies() {
+    const fs = require('fs');
     let rawData = fs.readFileSync('movies200.json');
     let movies = JSON.parse(rawData).movies;
     console.log(movies);
