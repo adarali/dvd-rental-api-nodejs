@@ -14,7 +14,7 @@ Date.prototype.addDays = function(days) {
 
 exports.buildLinkHeader = function(req, totalCount) {
     let per_page = parseInt(req.per_page || 10);
-    let url = req.protocol + '://' + req.get('host') + req.originalUrl;
+    let url = exports.getFullUrl(req);
     let params = req.query
     console.log("buildLinkHeader params", params);
     let page = parseInt(params.page || 0)
@@ -44,4 +44,8 @@ function getUrl(url, params, page) {
     myUrl.searchParams.delete("page");
     myUrl.searchParams.append("page", page);
     return `<${myUrl.href}>`;
+}
+
+exports.getFullUrl = function(req) {
+    return req.protocol + '://' + req.get('host') + req.originalUrl;
 }

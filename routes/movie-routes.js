@@ -37,7 +37,8 @@ router.get(getUrl(), (req, res) => {
 router.post(getUrl(), authRole(true), (req, res) => {
     movieRepo.save(req.body, (err, movie) => {
         if(err) return res.status(400).send(err);
-        res.send(movie);
+        res.set("Link", utils.getFullUrl(req)+"/"+movie._id);
+        res.status(201).send(movie);
     });
 });
 
