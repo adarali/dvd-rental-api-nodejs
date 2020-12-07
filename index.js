@@ -1,5 +1,8 @@
 var express = require('express');
+var cors = require('cors');
 var app = express();
+
+app.use(cors());
 
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://172.17.0.2/testdb',
@@ -16,7 +19,7 @@ require('./security/security').addMiddleware(app);
 
 app.use(express.json());
 
-app.use('/api/v1/movies', require('./routes/movie-routes'));
+app.use('/api/v1/movies', require('./routes/movie-routes')(app));
 app.use('/api/v1/users', require('./routes/user-routes'));
 app.use('/api/v1', require('./routes/log-routes'));
 app.use('/login/auth', require('./routes/login-routes'));

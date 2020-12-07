@@ -1,24 +1,24 @@
-var router = require('express').Router();
-var movieRepo = require('../repo/movie-repo');
-const { authRole } = require('../security/security');
-var rentRepo = require('../repo/rent-repo');
-var purchaseRepo = require('../repo/purchase-repo');
-var utils = require('../utils/utils');
 
-router.use(function timeLog(req, res, next) {
-    console.log("timeLog");
-    next();
-});
+let movieRepo = require('../repo/movie-repo');
+const { authRole } = require('../security/security');
+let rentRepo = require('../repo/rent-repo');
+let purchaseRepo = require('../repo/purchase-repo');
+let utils = require('../utils/utils');
+
+
+module.exports = function(app) {
+    let router = require('express').Router(app);
 
 router.get(getUrl(), (req, res) => {
     if(!req.admin) req.query.available = 1
     movieRepo.findAll(req.query, (err, result) => {
         let movies = result.movies;
+        res.set("Access-Control-Expose-Headers", "Link,X-Total-Count")
         res.set("X-Total-Count", result.count)
         res.set("Link", utils.buildLinkHeader(req, result.count))
         if(err) return res.status(400).send(err);
         res.send(movies);
-    })
+    });
 });
 
 router.get(getUrl(':id'), (req, res) => {
@@ -101,8 +101,9 @@ router.post(getUrl(':id/purchases'), (req, res) => {
     });
 });
 
-module.exports = router;
 
+return router;
+};
 
 function getUrl(url) {
     return url ? "/"+url : '';
