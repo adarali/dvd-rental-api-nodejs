@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const { param } = require('../routes/log-routes');
 const changeRepo = require('./change-repo');
+const AppException = require('../errors/app-error');
+const AppError = require('../errors/app-error');
 
 const movieSchema = new mongoose.Schema({
     title: {type: String, required: true, trim: true, minlength: 3},
@@ -24,10 +26,6 @@ movieSchema.virtual('likes').get(function() {
 
 movieSchema.virtual('id').get(function() {
     return this._id;
-});
-
-movieSchema.virtual('likes').get(function() {
-    return this.likeCount;
 });
 
 movieSchema.set('toJSON', {virtuals: true})
@@ -71,10 +69,13 @@ exports.findOne = function(id, callback) {
 
 exports.save = function(movieParam, callback) {
     const movie = new Movie(movieParam);
-    Movie.count({title: movieParam.title}, (err, result) => {
+    Movie.count({title: new RegExp('^'+ movieParam.title + '$', "i")}, (err, countResult) => {
         if(err) return callback(err, null);
-        if(result > 0) return callback({message: "There is already a movie with the same title"}, null);
-        return movie.save(callback)
+        if(countResult > 0) return callback(new AppError({message: "There is already a movie with the same title"}), null);
+        return movie.save((err, movie) => {
+            if(err) return callback(new AppError(err, 422), null);
+            return callback(err, movie)
+        });
     });
     
 }
@@ -83,7 +84,7 @@ exports.update = function(id, movieParam, callback) {
     changeRepo.logChanges(id, movieParam, (err, changes) => {
         if(err) return callback(err, null);
         Movie.findByIdAndUpdate(id, movieParam, {new: true, runValidators: true}, (err, updated)=> {
-            if(err) return callback(err, null);
+            if(err) return callback(new AppError(err, 422), null);
             changes.forEach(change => {
                 change.movie = updated;
                 change.save();
@@ -91,8 +92,7 @@ exports.update = function(id, movieParam, callback) {
             callback(err, updated);
         });
 
-    })
-    
+    });
 }
 
 exports.delete = function(id, callback) {

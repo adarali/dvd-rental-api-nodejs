@@ -9,7 +9,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.11.3",
+    "mongoose": "^5.11.5",
     "nodemon": "^2.0.6",
     "passport-jwt": "^4.0.0",
     "passport-oauth2-jwt-bearer": "^0.2.0",

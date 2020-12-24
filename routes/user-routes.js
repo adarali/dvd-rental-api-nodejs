@@ -1,7 +1,9 @@
 const userRepo = require('../repo/user-repo')
 var router = require('express').Router();
 var { authRole } = require('../security/security')
+var Router = require('express').Router;
 
+module.exports = function(app) {
 router.get(getUrl(), authRole(), (req, res) => {
     userRepo.findAll((err, users) => {
         if(err) return res.status(400).send(err);
@@ -23,8 +25,8 @@ router.put(getUrl(':id'), authRole(), (req, res) => {
     })
 })
 
-module.exports = router;
-
+return router;
+}
 
 function getUrl(url) {
     return url ? "/"+url : '';

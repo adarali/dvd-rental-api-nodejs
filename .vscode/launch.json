@@ -4,15 +4,23 @@
         {
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
-            "name": "nodemon",
+            "name": "node",
             "program": "${workspaceFolder}/index.js",
             "request": "launch",
             "restart": true,
-            "runtimeExecutable": "nodemon",
+            "runtimeExecutable": "node",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "type": "pwa-node"
+            "type": "node"
+        },
+        {
+          "type": "firefox",
+          "request": "launch",
+          "name": "vuejs: firefox",
+          "url": "http://localhost:8080",
+          "webRoot": "${workspaceFolder}/public",
+          "pathMappings": [{ "url": "webpack:///src/", "path": "${webRoot}/" }]
         }
     ],
     "compounds": []

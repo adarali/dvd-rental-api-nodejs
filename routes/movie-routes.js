@@ -36,7 +36,7 @@ router.get(getUrl(), (req, res) => {
 
 router.post(getUrl(), authRole(true), (req, res) => {
     movieRepo.save(req.body, (err, movie) => {
-        if(err) return res.status(400).send(err);
+        if(err) return res.status(err.status || 400).send(err.error);
         res.set("Link", utils.getFullUrl(req)+"/"+movie._id);
         res.status(201).send(movie);
     });
@@ -46,7 +46,7 @@ router.put(getUrl(':id'), authRole(true), (req, res) => {
     // if(!req.admin) return res.status(403).send();
     console.log("movie routes put")
     movieRepo.update(req.params.id, req.body, (err, movie) => {
-        if(err) return res.status(400).send(err);
+        if(err) return res.status(err.status || 400).send(err.error);
         res.send(movie);
     });
 })
